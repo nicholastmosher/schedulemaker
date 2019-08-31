@@ -12,11 +12,11 @@ RUN apt-get -yq update && \
     apt-get -yq clean all
 
 RUN docker-php-ext-install mysqli && \
-    pecl install imagick && docker-php-ext-enable imagick
+    echo | pecl install imagick && docker-php-ext-enable imagick
 
 COPY . /var/www/html
 
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get -yq update && \
     apt-get -yq install nodejs && \
     npm install && \
