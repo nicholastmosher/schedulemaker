@@ -34,3 +34,6 @@ _Local Working Files/*
 web.config
 vwd.webinfo
 WebEssentials-Settings.json
+
+# Ignore .env
+.env
