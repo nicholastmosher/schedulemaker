@@ -98,7 +98,7 @@ var minifyCSS = require('gulp-minify-css');
 var template = require('gulp-template');
 
 // Define Tasks
-gulp.task('templates', function() {
+gulp.task('templates', function(done) {
 
 	var mapped = doFor('templates', function(templatePaths) {
 		return gulp.src(templatePaths.src)
@@ -111,11 +111,12 @@ gulp.task('templates', function() {
 		.pipe(gulp.dest(templatePaths.dest));
 	});
 	
-	return es.concat.apply(null, mapped);
+	//return es.concat.apply(null, mapped);
+	done();
 });
 
 
-gulp.task('scripts', function() {
+gulp.task('scripts', function(done) {
 	var mapped = doFor('scripts', function(scriptPaths) {
 		return gulp.src(scriptPaths.src)
 		.pipe(template({modulePath: scriptPaths.dest}))
@@ -124,18 +125,19 @@ gulp.task('scripts', function() {
 		.pipe(gulp.dest(scriptPaths.dest))
 		.pipe(sourcemaps.init())
 		.pipe(rename({suffix: '.min'}))
-		.pipe(uglify({outSourceMap: "dist.min.js"}))
+		.pipe(uglify())
 		.pipe(sourcemaps.write({inline: false, includeContent: false}))
 		// HACK UNTIL GRUNT-UGLIFY HANDLES SOURCEMAPS CORRECTLY
 		.pipe(replace('{"version":3,"file":"dist.min.js","sources":["dist.min.js"]', '{"version":3,"file":"dist.min.js","sources":["dist.js"]'))
 		.pipe(gulp.dest(scriptPaths.dest));
 	});
 	
-	return es.concat.apply(null, mapped);
+	//return es.concat.apply(null, mapped);
+	done();
 });
 
 
-gulp.task('styles', function() {
+gulp.task('styles', function(done) {
 	var mapped = doFor('styles', function(stylePaths) {
 		return gulp.src(stylePaths.src)
 		.pipe(concat('dist.css'))
@@ -145,7 +147,8 @@ gulp.task('styles', function() {
 		.pipe(gulp.dest(stylePaths.dest));
 	});
 	
-	return es.concat.apply(null, mapped);
+	//return es.concat.apply(null, mapped);
+	done();
 });
 
 gulp.task('watch', function() {
@@ -162,7 +165,7 @@ gulp.task('watch', function() {
 });
 
 gulp.task('clean', function() {
-  return gulp.src(modulesRoot.dest, {read: false})
+  return gulp.src(modulesRoot.dest, {read: false, allowEmpty: true})
     .pipe(clean());
 });
 
@@ -171,8 +174,6 @@ gulp.task('cleanAll', function() {
     .pipe(clean());
 });
 
-gulp.task('build', ['clean'], function() {
-	return gulp.start('scripts', 'templates', 'styles');
-});
+gulp.task('build', gulp.series('clean', gulp.parallel('scripts', 'templates', 'styles')));
 
-gulp.task('default', ['build']);
+gulp.task('default', gulp.series('build'));
